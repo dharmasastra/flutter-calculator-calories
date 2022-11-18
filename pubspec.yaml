@@ -38,7 +38,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   font_awesome_flutter: ^10.2.1
   dropdown_button2: ^1.8.4
-  flutter_svg: ^1.1.5
+  flutter_svg: ^0.22.0
+  dio: ^4.0.6
+  flutter_html: ^2.2.1
+  data_table_2: ^2.3.8
 
 dev_dependencies:
   flutter_test:

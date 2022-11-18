@@ -1,8 +1,9 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kalori/constants.dart';
+import 'package:kalori/models/table_model.dart';
+import 'package:kalori/widgets/calories_container.dart';
+import 'package:kalori/widgets/form_kalori.dart';
 
 class KaloriScreen extends StatefulWidget {
   const KaloriScreen({Key? key}) : super(key: key);
@@ -12,8 +13,26 @@ class KaloriScreen extends StatefulWidget {
 }
 
 class _KaloriScreenState extends State<KaloriScreen> {
+  int _calories = 0;
+  bool isTableCalories = false;
+  bool isButtonDisable = true;
+  bool isPreviewTable = false;
+  final columns = ['Nama Bahan (100g)', "Kalori"];
+  List<TableKalori> selectedTableCalories = [];
+
   @override
   Widget build(BuildContext context) {
+    final total = selectedTableCalories.fold<num>(
+      0,
+      ((prev, curr) {
+        return prev + curr.kalori;
+      }),
+    );
+    if (total > _calories) {
+      isButtonDisable = false;
+    } else {
+      isButtonDisable = true;
+    }
     return GestureDetector(
       onTap: () {
         setState(() {});
@@ -23,6 +42,7 @@ class _KaloriScreenState extends State<KaloriScreen> {
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.height * 0.18,
+              vertical: 30,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -39,14 +59,141 @@ class _KaloriScreenState extends State<KaloriScreen> {
                 const SizedBox(
                   height: 100,
                 ),
-                FormCalories(),
+                FormCalories(
+                  calories: (calories) {
+                    setState(() {
+                      _calories = calories;
+                    });
+                  },
+                ),
                 const SizedBox(
                   height: 16,
                 ),
-                Container(
-                  height: 400,
-                  color: secondaryColor,
-                ),
+                if (isTableCalories) ...{
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                            color: secondaryColor,
+                            border: Border.all(
+                              color: buttonColor,
+                            )),
+                        width: 450,
+                        height: 600,
+                        child: DataTable2(
+                          columnSpacing: defaultPadding,
+                          horizontalMargin: defaultPadding,
+                          dataRowHeight: 60,
+                          headingTextStyle: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                          columns: getColumns(columns),
+                          rows: getRows(data),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: defaultPadding,
+                      ),
+                      Container(
+                        height: 600,
+                        width: 500,
+                        color: secondaryColor,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Kalori $total / $_calories',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            const SizedBox(
+                              height: defaultPadding,
+                            ),
+                            SizedBox(
+                              width: 200,
+                              height: 45,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor:
+                                      isButtonDisable ? null : Colors.red,
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(color: buttonColor),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                onPressed: isButtonDisable
+                                    ? () => setState(() {
+                                          isPreviewTable = true;
+                                          isTableCalories = false;
+                                        })
+                                    : null,
+                                child: const Text(
+                                  "Lihat Makanan",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: textButtonColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                } else if (isPreviewTable) ...{
+                  Container(
+                    decoration: BoxDecoration(
+                        color: secondaryColor,
+                        border: Border.all(
+                          color: buttonColor,
+                        )),
+                    width: 450,
+                    height: 600,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: 450,
+                          height: 500,
+                          child: DataTable2(
+                            columnSpacing: defaultPadding,
+                            horizontalMargin: defaultPadding,
+                            dataRowHeight: 60,
+                            minWidth: 600,
+                            headingTextStyle: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                            columns: getColumns(columns),
+                            rows: getRowSelected(selectedTableCalories),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: defaultPadding,
+                        ),
+                        Container(
+                          width: 450,
+                          padding: const EdgeInsets.only(right: 110),
+                          // alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Total Kalori: $total",
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                } else ...{
+                  CaloriesContainer(
+                    calories: _calories,
+                    tableCaoriesBool: (bool tableCalories) {
+                      setState(() {
+                        isTableCalories = tableCalories;
+                      });
+                    },
+                  ),
+                }
               ],
             ),
           ),
@@ -54,323 +201,61 @@ class _KaloriScreenState extends State<KaloriScreen> {
       ),
     );
   }
-}
 
-class FormCalories extends StatefulWidget {
-  FormCalories({Key? key}) : super(key: key);
+  List<DataColumn> getColumns(List<String> columns) => columns
+      .map(
+        (String column) => DataColumn(
+          label: Text(column),
+        ),
+      )
+      .toList();
 
-  @override
-  State<FormCalories> createState() => _FormCaloriesState();
-}
-
-class _FormCaloriesState extends State<FormCalories> {
-  FocusNode textFieldAgeNode = FocusNode();
-  FocusNode textFieldHeightNode = FocusNode();
-  FocusNode textFieldWeightNode = FocusNode();
-
-  String? selectedGenderValue;
-  String? selectedActivityValue;
-
-  final List<String> genderItems = ['Laki - Laki', 'Perempuan'];
-  final List<String> activityItems = [
-    'Istirahat',
-    'Aktifitas Ringan',
-    "Aktifitas Berat"
-  ];
-
-  String? age;
-  String? weight;
-  String? height;
-  String? gender;
-  String? activity;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      // height: 450,
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: primaryColor,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Row(
-        // crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Container(
-            alignment: Alignment.center,
-            width: 200,
-            child: TextFormField(
-              focusNode: textFieldAgeNode,
-              // onChanged: (value) => print(textFieldNode.hasFocus),
-              onTap: () => setState(() {}),
-              onChanged: (value) {
-                setState(() {
-                  age = value;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: "Umur",
-                labelStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: textFieldAgeNode.hasFocus ? buttonColor : textColor,
-                ),
-                border: const OutlineInputBorder(),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: buttonColor),
-                ),
-                // suffixIcon: Icon(
-                //   FontAwesomeIcons.user,
-                //   color: textFieldAgeNode.hasFocus ? buttonColor : textColor,
-                //   size: 16,
-                // ),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: SvgPicture.asset(
-                    'assets/icons/age-icon.svg',
-                    width: 16,
-                    color: textFieldAgeNode.hasFocus ? buttonColor : textColor,
-                  ),
-                ),
+  List<DataRow> getRows(List<TableKalori> tableCalories) => tableCalories
+      .map(
+        (TableKalori calories) => DataRow(
+          selected: selectedTableCalories.contains(calories),
+          onSelectChanged: (isSelected) => setState(() {
+            final isAdding = isSelected != null && isSelected;
+            isAdding
+                ? selectedTableCalories.add(calories)
+                : selectedTableCalories.remove(calories);
+          }),
+          cells: [
+            DataCell(
+              SizedBox(
+                width: 100,
+                child: Text(calories.name),
               ),
             ),
-          ),
-          const SizedBox(
-            height: defaultPadding,
-          ),
-          Container(
-            alignment: Alignment.center,
-            width: 200,
-            child: TextFormField(
-              focusNode: textFieldWeightNode,
-              // onChanged: (value) => print(textFieldNode.hasFocus),
-              onTap: () => setState(() {}),
-              onChanged: (value) {
-                setState(() {
-                  weight = value;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: "Berat Badan",
-                labelStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: textFieldWeightNode.hasFocus ? buttonColor : textColor,
-                ),
-                border: const OutlineInputBorder(),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: buttonColor),
-                ),
-                // suffixIcon: Icon(
-                //   FontAwesomeIcons.weightScale,
-                //   color: textFieldWeightNode.hasFocus ? buttonColor : textColor,
-                //   size: 16,
-                // ),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: SvgPicture.asset(
-                    'assets/icons/body-weight-icon.svg',
-                    width: 16,
-                    color: textFieldWeightNode.hasFocus ? buttonColor : textColor,
-                  ),
-                ),
+            DataCell(
+              SizedBox(
+                width: 50,
+                child: Text('${calories.kalori}'),
+              ),
+            )
+          ],
+        ),
+      )
+      .toList();
+
+  List<DataRow> getRowSelected(List<TableKalori> tableCalories) => tableCalories
+      .map(
+        (TableKalori calories) => DataRow(
+          cells: [
+            DataCell(
+              SizedBox(
+                width: 100,
+                child: Text(calories.name),
               ),
             ),
-          ),
-          const SizedBox(
-            height: defaultPadding,
-          ),
-          Container(
-            alignment: Alignment.center,
-            width: 200,
-            child: TextFormField(
-              focusNode: textFieldHeightNode,
-              // onChanged: (value) => print(textFieldNode.hasFocus),
-              onTap: () => setState(() {}),
-              onChanged: (value) {
-                setState(() {
-                  height = value;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: "Tinggi Badan",
-                labelStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: textFieldHeightNode.hasFocus ? buttonColor : textColor,
-                ),
-                border: const OutlineInputBorder(),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: buttonColor),
-                ),
-                // suffixIcon: Icon(
-                //   FontAwesomeIcons.textHeight,
-                //   color: textFieldHeightNode.hasFocus ? buttonColor : textColor,
-                //   size: 16,
-                // ),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: SvgPicture.asset(
-                    'assets/icons/measure-height-icon.svg',
-                    width: 16,
-                    color: textFieldHeightNode.hasFocus ? buttonColor : textColor,
-                  ),
-                ),
+            DataCell(
+              SizedBox(
+                width: 50,
+                child: Text('${calories.kalori}'),
               ),
-            ),
-          ),
-          const SizedBox(
-            height: defaultPadding,
-          ),
-          SizedBox(
-            width: 200,
-            child: DropdownButtonFormField2(
-              onMenuStateChange: (isOpen) => setState(() {}),
-              decoration: InputDecoration(
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: buttonColor),
-                ),
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-                border: const OutlineInputBorder(),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: SvgPicture.asset(
-                    'assets/icons/man-and-woman-user-icon.svg',
-                    width: 16,
-                  ),
-                ),
-              ),
-              isExpanded: true,
-              hint: const Text(
-                'Select Your Gender',
-                style: TextStyle(fontSize: 14),
-              ),
-              icon: const Icon(
-                Icons.arrow_drop_down,
-                color: Colors.black45,
-              ),
-              iconSize: 30,
-              buttonHeight: 60,
-              buttonPadding: const EdgeInsets.only(left: 10,),
-              dropdownDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              items: genderItems
-                  .map((item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ))
-                  .toList(),
-              // items: _addDividersAfterItems(genderItems),
-              validator: (value) {
-                if (value == null) {
-                  return 'Please select gender.';
-                }
-              },
-              onChanged: (value) {
-                //Do something when changing the item if you want.
-                gender = value.toString();
-              },
-              onSaved: (value) {
-                selectedGenderValue = value.toString();
-              },
-            ),
-          ),
-          const SizedBox(
-            height: defaultPadding,
-          ),
-          SizedBox(
-            width: 200,
-            child: DropdownButtonFormField2(
-              onMenuStateChange: (isOpen) => setState(() {}),
-              decoration: const InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: buttonColor),
-                ),
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-                border: OutlineInputBorder(),
-              ),
-              isExpanded: true,
-              hint: const Text(
-                'Select Your Activity',
-                style: TextStyle(fontSize: 14),
-              ),
-              icon: const Icon(
-                Icons.arrow_drop_down,
-                color: Colors.black45,
-              ),
-              iconSize: 30,
-              buttonHeight: 60,
-              buttonPadding: const EdgeInsets.only(left: 20, right: 10),
-              dropdownDecoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              items: activityItems
-                  .map((item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ))
-                  .toList(),
-              validator: (value) {
-                if (value == null) {
-                  return 'Please select gender.';
-                }
-              },
-              onChanged: (value) {
-                //Do something when changing the item if you want.
-                activity = value.toString();
-              },
-              onSaved: (value) {
-                selectedActivityValue = value.toString();
-              },
-            ),
-          ),
-          const SizedBox(
-            height: defaultPadding,
-          ),
-          SizedBox(
-            width: 200,
-            height: 45,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: buttonColor),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              onPressed: () {
-                String? tempGender;
-                if (gender == 'Perempuan') {
-                  tempGender = "P";
-                } else {
-                  tempGender = "L";
-                }
-                print("$age, $weight, $height, $tempGender, $activity");
-              },
-              child: const Text(
-                "Hitung",
-                style: TextStyle(
-                    fontSize: 14,
-                    color: textButtonColor,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+            )
+          ],
+        ),
+      )
+      .toList();
 }
