@@ -1,6 +1,7 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kalori/constants.dart';
 import 'package:kalori/services/fetch_kalori.dart';
 
@@ -38,6 +39,15 @@ class _FormCaloriesState extends State<FormCalories> {
   String? height;
   String? gender;
   String? activity;
+
+  String msg = """
+  - Istirahat: Pensiunan, Pengangguran
+  - Ringan: Dagang, Jaga Toko, pekerja kantoran
+  - Sedang: tukang kayu
+  - Berat: mencangkul, menyekop pasir
+  - Sangat Berat: tantara muda
+
+  """;
 
   @override
   Widget build(BuildContext context) {
@@ -91,9 +101,6 @@ class _FormCaloriesState extends State<FormCalories> {
               ),
             ),
           ),
-          const SizedBox(
-            height: defaultPadding,
-          ),
           Container(
             alignment: Alignment.center,
             width: 200,
@@ -134,9 +141,6 @@ class _FormCaloriesState extends State<FormCalories> {
               ),
             ),
           ),
-          const SizedBox(
-            height: defaultPadding,
-          ),
           Container(
             alignment: Alignment.center,
             width: 200,
@@ -176,9 +180,6 @@ class _FormCaloriesState extends State<FormCalories> {
                 ),
               ),
             ),
-          ),
-          const SizedBox(
-            height: defaultPadding,
           ),
           SizedBox(
             width: 200,
@@ -242,9 +243,6 @@ class _FormCaloriesState extends State<FormCalories> {
               },
             ),
           ),
-          const SizedBox(
-            height: defaultPadding,
-          ),
           SizedBox(
             width: 200,
             child: DropdownButtonFormField2(
@@ -306,8 +304,13 @@ class _FormCaloriesState extends State<FormCalories> {
               },
             ),
           ),
-          const SizedBox(
-            height: defaultPadding,
+          Tooltip(
+            message: msg,
+            child: const InkWell(
+                child: Icon(
+                  FontAwesomeIcons.solidCircleQuestion,
+                  size: 18,
+                )),
           ),
           SizedBox(
             width: 200,
@@ -333,16 +336,16 @@ class _FormCaloriesState extends State<FormCalories> {
                   case 'Istirahat':
                     tempActivity = 1.8;
                     break;
-                  case 'Aktifitas Ringan': 
+                  case 'Aktifitas Ringan':
                     tempActivity = 3.5;
                     break;
-                  case 'Aktifitas Sedang': 
+                  case 'Aktifitas Sedang':
                     tempActivity = 6.5;
                     break;
-                  case 'Aktifitas Berat': 
+                  case 'Aktifitas Berat':
                     tempActivity = 8;
                     break;
-                  case 'Aktifitas Sangat Berat': 
+                  case 'Aktifitas Sangat Berat':
                     tempActivity = 10;
                     break;
                   default:

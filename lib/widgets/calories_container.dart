@@ -38,8 +38,11 @@ class CaloriesContainer extends StatelessWidget {
         children: [
           SizedBox(
             width: 300,
-            child: Image.asset(
-              "assets/images/food.png",
+            child: RotationTransition(
+              turns: const AlwaysStoppedAnimation(-13 / 360),
+              child: Image.asset(
+                "assets/images/food.png",
+              ),
             ),
           ),
           const SizedBox(
