@@ -57,10 +57,11 @@ class _TableContainerState extends State<TableContainer> {
       children: [
         Container(
           decoration: BoxDecoration(
-              color: secondaryColor,
-              border: Border.all(
-                color: buttonColor,
-              )),
+            color: secondaryColor,
+            border: Border.all(
+              color: buttonColor,
+            ),
+          ),
           width: 450,
           height: 600,
           child: DataTable2(
@@ -110,8 +111,6 @@ class _TableContainerState extends State<TableContainer> {
                             widget.boolTableContainer(
                                 isTableCalories, isPreviewTable);
                           }),
-
-          
                   child: const Text(
                     "Lihat Makanan",
                     style: TextStyle(

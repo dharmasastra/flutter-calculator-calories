@@ -1,6 +1,8 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:kalori/constants.dart';
+import 'package:kalori/models/menu_model.dart';
 
 typedef _TableCaoriesBool(
   bool tableCalories,
@@ -22,6 +24,7 @@ class CaloriesContainer extends StatelessWidget {
   final double _caloriesIdeal;
   final double _bbi;
   final _TableCaoriesBool tableCaloriesBool;
+
   String html = """
       <div>
         <h3>Tips pola makan yang perlu diperhatikan:</h3>
@@ -32,9 +35,22 @@ class CaloriesContainer extends StatelessWidget {
           <li>Akhirnya, jangan lupa olahraga yang akan membakar kalori.</li>
         </ul>
       </div> """;
-
+  List<String> columns = ['Nama', "Kalori"];
   @override
   Widget build(BuildContext context) {
+    double breakfast = _calories * (20 / 100);
+    double snack = _calories * (12.5 / 100);
+    double lunch = _calories * (30 / 100);
+    double dinner = _calories * (25 / 100);
+
+    List<Menu> _data = [
+      Menu(name: "Sarapan", kalori: breakfast.toStringAsFixed(0)),
+      Menu(name: "Snack", kalori: snack.toStringAsFixed(0)),
+      Menu(name: "Makan Siang", kalori: lunch.toStringAsFixed(0)),
+      Menu(name: "Snack", kalori: snack.toStringAsFixed(0)),
+      Menu(name: "Makan Malam", kalori: dinner.toStringAsFixed(0)),
+    ];
+
     return Container(
       height: 500,
       width: double.infinity,
@@ -60,24 +76,57 @@ class CaloriesContainer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                    width: 400,
-                    child: RichText(
-                      text: TextSpan(
-                        text:
-                            "Kalori yang diperlukan untuk berat badan sekarang ",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: textColor,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                              text: _calories.toStringAsFixed(1),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold)),
-                          const TextSpan(text: ' kalori / hari!'),
-                        ],
+                  width: 400,
+                  child: RichText(
+                    text: TextSpan(
+                      text:
+                          "Kalori yang diperlukan untuk berat badan sekarang ",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: textColor,
                       ),
-                    )),
+                      children: <TextSpan>[
+                        TextSpan(
+                            text: _calories.toStringAsFixed(0),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        const TextSpan(text: ' kalori / hari!'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: defaultPadding,
+                ),
+                 const Text(
+                  "Pembagian Waktu Makan Sesuai Kalorinya",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: textColor,
+                    ),
+                  ),
+                  width: 300,
+                  height: 200,
+                  child: DataTable2(
+                    columnSpacing: defaultPadding,
+                    horizontalMargin: defaultPadding,
+                    dataRowHeight: 28,
+                    minWidth: 250,
+                    headingTextStyle: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
+                    columns: getColumns(columns),
+                    rows: getRowSelected(_data),
+                  ),
+                ),
                 const SizedBox(
                   height: defaultPadding,
                 ),
@@ -95,9 +144,11 @@ class CaloriesContainer extends StatelessWidget {
                             text: _bbi.toInt().toString(),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          const TextSpan(text: ' dan kalori yang dibutuhkan dari berat badan idealnya adalah '),
-                           TextSpan(
-                            text: _caloriesIdeal.toStringAsFixed(1),
+                          const TextSpan(
+                              text:
+                                  ' dan kalori yang dibutuhkan dari berat badan idealnya adalah '),
+                          TextSpan(
+                            text: _caloriesIdeal.toStringAsFixed(0),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const TextSpan(text: ' kalori / hari!'),
@@ -144,4 +195,32 @@ class CaloriesContainer extends StatelessWidget {
       ),
     );
   }
+
+  List<DataColumn> getColumns(List<String> columns) => columns
+      .map(
+        (String column) => DataColumn(
+          label: Text(column),
+        ),
+      )
+      .toList();
+  List<DataRow> getRowSelected(List<Menu> tableCalories) => tableCalories
+      .map(
+        (Menu calories) => DataRow(
+          cells: [
+            DataCell(
+              SizedBox(
+                width: 150,
+                child: Text(calories.name),
+              ),
+            ),
+            DataCell(
+              SizedBox(
+                width: 50,
+                child: Text(calories.kalori),
+              ),
+            )
+          ],
+        ),
+      )
+      .toList();
 }
