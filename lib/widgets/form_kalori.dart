@@ -6,7 +6,11 @@ import 'package:kalori/constants.dart';
 import 'package:kalori/services/fetch_kalori.dart';
 
 typedef _CallbackCalories(
-  int calories,
+  double calories,
+  double caloriesIdeal,
+  double bbi,
+  // bool isTableCalories,
+  // bool isPreviewTable,
 );
 
 class FormCalories extends StatefulWidget {
@@ -41,6 +45,7 @@ class _FormCaloriesState extends State<FormCalories> {
   String? activity;
 
   String msg = """
+  Jenis Aktivitas:
   - Istirahat: Pensiunan, Pengangguran
   - Ringan: Dagang, Jaga Toko, pekerja kantoran
   - Sedang: tukang kayu
@@ -325,6 +330,7 @@ class _FormCaloriesState extends State<FormCalories> {
               onPressed: () async {
                 String? tempGender;
                 double? tempActivity;
+                double tempBbi;
 
                 if (gender == 'Perempuan') {
                   tempGender = "P";
@@ -351,9 +357,14 @@ class _FormCaloriesState extends State<FormCalories> {
                   default:
                 }
 
+                tempBbi = beratBadanIdeal(int.parse(height!), tempGender);
+
                 final kalori = await fetchKalori(tempGender, int.parse(age!),
                     int.parse(weight!), int.parse(height!), tempActivity!);
-                widget.calories(kalori);
+
+                final kaloriIdeal = await fetchKalori(tempGender, int.parse(age!),
+                    tempBbi.toInt(), int.parse(height!), tempActivity);
+                widget.calories(kalori, kaloriIdeal, tempBbi);
               },
               child: const Text(
                 "Hitung",
@@ -367,5 +378,10 @@ class _FormCaloriesState extends State<FormCalories> {
         ],
       ),
     );
+  }
+
+  double beratBadanIdeal(int height, String gender){
+    double bbi = 0;
+    return gender == "L" ? bbi = (height - 100) - ((height - 100) * 10/100) : bbi = (height - 100) - ((height - 100) * 15/100);
   }
 }

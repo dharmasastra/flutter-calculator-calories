@@ -9,13 +9,19 @@ typedef _TableCaoriesBool(
 class CaloriesContainer extends StatelessWidget {
   CaloriesContainer({
     Key? key,
-    required int calories,
-    required this.tableCaoriesBool
+    required double calories,
+    required double caloriesIdeal,
+    required double bbi,
+    required this.tableCaloriesBool,
   })  : _calories = calories,
+        _caloriesIdeal = caloriesIdeal,
+        _bbi = bbi,
         super(key: key);
 
-  final int _calories;
-  final _TableCaoriesBool tableCaoriesBool;
+  final double _calories;
+  final double _caloriesIdeal;
+  final double _bbi;
+  final _TableCaoriesBool tableCaloriesBool;
   String html = """
       <div>
         <h3>Tips pola makan yang perlu diperhatikan:</h3>
@@ -54,15 +60,50 @@ class CaloriesContainer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 400,
-                  child: Text(
-                    "Kalori yang diperlukan untuk berat badan sekarang $_calories kalori / hari",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: textColor,
-                    ),
-                  ),
+                    width: 400,
+                    child: RichText(
+                      text: TextSpan(
+                        text:
+                            "Kalori yang diperlukan untuk berat badan sekarang ",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: textColor,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: _calories.toStringAsFixed(1),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          const TextSpan(text: ' kalori / hari!'),
+                        ],
+                      ),
+                    )),
+                const SizedBox(
+                  height: defaultPadding,
                 ),
+                SizedBox(
+                    width: 400,
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Berat badan idealnya adalah ",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: textColor,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: _bbi.toInt().toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const TextSpan(text: ' dan kalori yang dibutuhkan dari berat badan idealnya adalah '),
+                           TextSpan(
+                            text: _caloriesIdeal.toStringAsFixed(1),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const TextSpan(text: ' kalori / hari!'),
+                        ],
+                      ),
+                    )),
                 const SizedBox(
                   height: defaultPadding,
                 ),
@@ -77,7 +118,7 @@ class CaloriesContainer extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                        tableCaoriesBool(true);
+                      tableCaloriesBool(true);
                     },
                     child: const Text(
                       "Pilih Makanan",
