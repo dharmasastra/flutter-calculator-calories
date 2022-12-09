@@ -8,6 +8,13 @@ typedef _TableCaoriesBool(
   bool tableCalories,
 );
 
+typedef _FoodTime(
+  double breakfast,
+  double snack,
+  double lunch,
+  double dinner,
+);
+
 class CaloriesContainer extends StatelessWidget {
   CaloriesContainer({
     Key? key,
@@ -15,6 +22,7 @@ class CaloriesContainer extends StatelessWidget {
     required double caloriesIdeal,
     required double bbi,
     required this.tableCaloriesBool,
+    required this.foodTime,
   })  : _calories = calories,
         _caloriesIdeal = caloriesIdeal,
         _bbi = bbi,
@@ -23,6 +31,7 @@ class CaloriesContainer extends StatelessWidget {
   final double _calories;
   final double _caloriesIdeal;
   final double _bbi;
+  final _FoodTime foodTime;
   final _TableCaoriesBool tableCaloriesBool;
 
   String html = """
@@ -98,7 +107,7 @@ class CaloriesContainer extends StatelessWidget {
                 const SizedBox(
                   height: defaultPadding,
                 ),
-                 const Text(
+                const Text(
                   "Pembagian Waktu Makan Sesuai Kalorinya",
                   style: TextStyle(
                     fontSize: 18,
@@ -170,6 +179,7 @@ class CaloriesContainer extends StatelessWidget {
                     ),
                     onPressed: () {
                       tableCaloriesBool(true);
+                      foodTime(breakfast, snack, lunch, dinner);
                     },
                     child: const Text(
                       "Pilih Makanan",
